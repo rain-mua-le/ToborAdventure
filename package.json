@@ -1,7 +1,7 @@
 {
-  "name": "babylonjselectron",
+  "name": "toboradventure",
   "version": "1.0.0",
-  "description": "This is a babylonjs electron sample",
+  "description": "This is a game about UTD",
   "main": "./app/main.js",
   "scripts": {
     "build": "tsc",
@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "babylonjs": "^4.1.0",
     "babylonjs-loaders": "^4.1.0"
@@ -21,8 +21,29 @@
     "typescript": "3.9.7"
   },
   "build": {
-    "appId": "yourappid",
+    "appId": "com.rain.whoosh",
+    "productName": "ToborAdventure",
+    "directories": {
+      "app": ".",
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "package.json",
+      "app/**/*",
+      "node_modules",
+      "index.html",
+      "assets/**/*"
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.games"
+    },
     "dmg": {
+      "window": {
+        "width": "800",
+        "height": "600"
+      },
       "contents": [
         {
           "x": 110,
@@ -38,6 +59,9 @@
     },
     "win": {
       "target": "portable"
+    },
+    "linux": {
+      "target": "AppImage"
     }
   }
 }
