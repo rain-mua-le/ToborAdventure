@@ -1,12 +1,25 @@
-import  * as babylon from "babylonjs"
+import * as babylon from "babylonjs"
+import "babylonjs-loaders"
+import {AdvancedDynamicTexture} from "@babylonjs/gui/2D"
 
 export class Menu {
     public static createScene(engine: babylon.Engine, canvas: HTMLCanvasElement): babylon.Scene {
         let scene: babylon.Scene = new babylon.Scene(engine);
-        var camera: babylon.ArcRotateCamera = new babylon.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, babylon.Vector3.Zero(), scene);
+        let camera: babylon.FollowCamera = new babylon.FollowCamera("FollowCam", new babylon.Vector3(0, 0, 0), scene);
+        camera.radius = 7.5;
+        camera.heightOffset = 7.5;
         camera.attachControl(canvas, true);
-        var light1: babylon.HemisphericLight = new babylon.HemisphericLight("light1", new babylon.Vector3(1, 1, 0), scene);
-        var sphere: babylon.Mesh = babylon.MeshBuilder.CreateSphere("sphere", { diameter: 1 }, scene);
+        babylon.SceneLoader.ImportMesh("", "./assets/models/", "tobor.glb", scene, (newMeshes: babylon.AbstractMesh[]) => {
+            console.log(newMeshes);
+            let tobor: babylon.AbstractMesh = newMeshes[1];
+            tobor.rotate(new babylon.Vector3(0, 0, 1), Math.PI / 8, babylon.Space.LOCAL);
+            camera.lockedTarget = tobor;
+        }, (progress: babylon.SceneLoaderProgressEvent) => {
+
+        }, (scene: babylon.Scene, msg: string, exception: any) => {
+            console.log(msg);
+        });
+        let light: babylon.HemisphericLight = new babylon.HemisphericLight("hemLight", new babylon.Vector3(0, 1, 0), scene);
         return scene;
     }
 }
