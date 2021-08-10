@@ -3,8 +3,11 @@ import * as gui from "babylonjs-gui"
 import {Menu} from "./menu"
 import {Instructions} from "./instructions"
 import {Credits} from "./credits"
+import {Sandbox} from "./sandbox"
 
-enum State {MAIN_MENU = 0, INSTRUCTIONS = 1, CREDITS = 2, CUTSCENE = 3, CHOOSE_LEVEL = 4}
+const remote = require("electron").remote;
+
+enum State {MAIN_MENU = 0, INSTRUCTIONS = 1, CREDITS = 2, CUTSCENE = 3, CHOOSE_LEVEL = 4, SANDBOX = 999}
 
 class App {
     private _scene: babylon.Scene;
@@ -16,6 +19,11 @@ class App {
         this._canvas = document.getElementById("render-canvas") as HTMLCanvasElement;
         this._engine = new babylon.Engine(this._canvas, true);
         this._scene = new babylon.Scene(this._engine);
+        this._canvas.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key == "Escape" && remote.getCurrentWindow().isFullScreen()) {
+                remote.getCurrentWindow().setFullScreen(false);
+            }
+        });
         this._main();
     }
 
@@ -38,7 +46,7 @@ class App {
         startButton.width = "150px";
         startButton.height = "50px";
         startButton.onPointerClickObservable.add(() => {
-            ;
+            this._goToSandbox();
         });
         advancedTexture.addControl(startButton);
         let instructionsButton: gui.Button = gui.Button.CreateSimpleButton("instructionsButton", "Instructions");
@@ -143,6 +151,17 @@ class App {
         this._state = State.CREDITS;
     }
 
+    private async _goToSandbox(): Promise<void> {
+        this._engine.displayLoadingUI();
+        this._scene.detachControl();
+        let scene = Sandbox.createScene(this._engine, this._canvas);
+        await scene.whenReadyAsync();
+        this._engine.hideLoadingUI();
+        this._scene.dispose();
+        this._scene = scene;
+        this._state = State.SANDBOX;
+    }
+
     private async _main(): Promise<void> {
         await this._goToMainMenu();
         this._engine.runRenderLoop(() => {
@@ -154,6 +173,9 @@ class App {
                     this._scene.render();
                     break;
                 case State.CREDITS:
+                    this._scene.render();
+                    break;
+                case State.SANDBOX:
                     this._scene.render();
                     break;
                 default: break;
